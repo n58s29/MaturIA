@@ -459,7 +459,7 @@
 
   <!-- ── Bottom nav ───────────────────────────────────────────────── -->
   <nav class="bottom-nav">
-    <div class="nav-item" onclick="setActiveNav(this)">
+    <div class="nav-item" onclick="window.location.href='index.html'">
       <div class="nav-icon">
         <svg viewBox="0 0 20 20" fill="none" stroke="#44474e" stroke-width="1.3">
           <path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h11A1.5 1.5 0 0 1 17 4.5v11A1.5 1.5 0 0 1 15.5 17H4.5A1.5 1.5 0 0 1 3 15.5V4.5Z"/>
@@ -468,7 +468,7 @@
       </div>
       <span class="nav-label">Knowledge</span>
     </div>
-    <div class="nav-item active" onclick="setActiveNav(this)">
+    <div class="nav-item active" onclick="window.location.href='questionnaire.html'">
       <div class="nav-icon">
         <svg viewBox="0 0 20 20" fill="none" stroke="#00b388" stroke-width="1.3">
           <path d="M2 12c2-4 4-4 6 0s4 4 6 0" stroke-linecap="round"/>
@@ -477,7 +477,7 @@
       </div>
       <span class="nav-label">Usage</span>
     </div>
-    <div class="nav-item" onclick="setActiveNav(this)">
+    <div class="nav-item" onclick="window.location.href='rapport-individuel.html'">
       <div class="nav-icon">
         <svg viewBox="0 0 20 20" fill="none" stroke="#44474e" stroke-width="1.3">
           <path d="M10 3a5 5 0 0 1 3.5 8.5c-.5.5-.5 1-.5 1.5H7c0-.5 0-1-.5-1.5A5 5 0 0 1 10 3Z"/>
@@ -486,7 +486,7 @@
       </div>
       <span class="nav-label">Mastery</span>
     </div>
-    <div class="nav-item" onclick="setActiveNav(this)">
+    <div class="nav-item" onclick="window.location.href='rapport-groupe.html'">
       <div class="nav-icon">
         <svg viewBox="0 0 20 20" fill="none" stroke="#44474e" stroke-width="1.3">
           <circle cx="10" cy="10" r="7"/>
@@ -576,8 +576,8 @@ const DOMAINES = [
 const REPONSES = {};
 
 /* ─── État courant ──────────────────────────────────────────────── */
-let domaineIdx   = 1;   // Usage par défaut (correspond à la maquette)
-let questionIdx  = 3;   // Question 04 (index 3)
+let domaineIdx   = 0;   // Démarrer depuis le début
+let questionIdx  = 0;
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
 function totalQuestions() { return DOMAINES.reduce((s, d) => s + d.questions.length, 0); }
@@ -673,8 +673,8 @@ function navigate(dir) {
       domaineIdx++;
       questionIdx = 0;
     } else {
-      /* Dernier écran — à venir */
-      alert('Diagnostic terminé ! Votre rapport est en cours de génération…');
+      /* Fin du questionnaire → rapport individuel */
+      window.location.href = 'rapport-individuel.html';
       return;
     }
   } else {
