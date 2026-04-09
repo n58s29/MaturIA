@@ -5,6 +5,22 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
 ---
 
+## [0.3.0] — 2026-04-09
+
+### Ajouté
+
+- **Écran rapport individuel** (`rapport-individuel.html`) — profil de maturité personnel
+  - Score global 74/100 avec niveau "Praticant" et barre de progression animée
+  - Radar chart SVG pentagonal (5 axes domaines, anneaux de fond, points colorés par domaine)
+  - Barres de score par domaine (5 lignes, couleur + valeur X/5, animation au chargement)
+  - Section "Points forts" (2 items avec bullet vert ✓)
+  - Section "Axes de progression" (2 items avec bullet orange !)
+  - Boutons "Exporter en PDF" (`window.print()`) et "Partager"
+  - Carte "Conseil de l'Expert" avec bordure accent usage
+  - Bottom nav 5 onglets (Knowledge → Strategy), Mastery actif
+
+---
+
 ## [0.2.0] — 2026-04-09
 
 ### Ajouté
