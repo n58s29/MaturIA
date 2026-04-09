@@ -5,6 +5,22 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
 ---
 
+## [0.4.0] — 2026-04-09
+
+### Ajouté
+
+- **Écran rapport groupe** (`rapport-groupe.html`) — vue consolidée multi-entités
+  - Filtres chips "Toutes les Entités / Direction IT / RH" avec état actif
+  - Bouton "Exporter PDF" (`window.print()`)
+  - Carte recommandation stratégique (icône cible, texte, tag "Programme Découverte")
+  - Donut chart SVG (4 segments : Explorateurs, Praticiens, Avancés, Leaders) + légende + total centré
+  - Radar SVG pentagonal "Moyenne du Groupe" avec toggle Groupe / Individuel
+  - Tableau anonymisé des répondants (initiales, ID, département, mini barre de score colorée)
+  - 🎮 **Easter egg** — Konami Code (↑↑↓↓←→←→BA) ou 7 taps sur le logo :
+    activation du "Mode Légendaire" avec overlay, score animé 0→100, confetti 5 couleurs domaines
+
+---
+
 ## [0.3.0] — 2026-04-09
 
 ### Ajouté

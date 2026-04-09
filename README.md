@@ -24,6 +24,7 @@ Single-file HTML — aucune dépendance, aucun build, zéro backend.
 index.html               — Écran d'accueil
 questionnaire.html       — Questionnaire 20 questions (5 domaines)
 rapport-individuel.html  — Rapport de maturité individuel
+rapport-groupe.html      — Rapport consolidé groupe (vue RH / Direction)
 SKILL.md                 — Design system MaturIA (tokens, typo, composants)
 CHANGELOG.md             — Historique des versions
 ```
@@ -35,7 +36,7 @@ Données stockées en mémoire (objet JS). Export PDF via `window.print()`.
 - **Accueil** (`index.html`) — Présentation du diagnostic, scores de la dernière session, liste des 5 domaines
 - **Questionnaire** (`questionnaire.html`) — 20 questions réparties par domaine, navigation complète, persistance des réponses
 - **Rapport individuel** (`rapport-individuel.html`) — Score global, radar SVG pentagonal, barres par domaine, points forts, axes de progression, export PDF
-- **Rapport groupe** — Vue consolidée multi-entités, distribution par niveau, export PDF
+- **Rapport groupe** (`rapport-groupe.html`) — Vue consolidée multi-entités, donut distribution, radar groupe, tableau répondants anonymisés, export PDF — et un easter egg 🎮
 
 ## Design system
 
