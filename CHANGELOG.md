@@ -5,6 +5,21 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
 ---
 
+## [0.2.0] — 2026-04-09
+
+### Ajouté
+
+- **Écran questionnaire** (`questionnaire.html`) — 20 questions réparties sur 5 domaines
+  - Domain nav : 5 onglets avec barre de progression colorée par domaine
+  - Navigation complète Précédent / Suivant avec persistance des réponses en mémoire
+  - Radio-choices animés (cercle vide → cercle plein couleur domaine, outline card)
+  - Couleur domaine dynamique via CSS custom property `--couleur-domaine`
+  - Image canvas procédurale (bureau sombre + lampe + accent couleur domaine)
+  - Compteur global `QUESTION XX / 20`
+  - Corpus complet : 4 questions × 5 domaines, 5 choix chacune
+
+---
+
 ## [0.1.0] — 2026-04-09
 
 ### Ajouté

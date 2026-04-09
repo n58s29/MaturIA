@@ -21,9 +21,10 @@ MaturIA est un questionnaire structuré en 5 domaines d'évaluation qui produit 
 Single-file HTML — aucune dépendance, aucun build, zéro backend.
 
 ```
-index.html    — Application complète (HTML + CSS + JS inline)
-SKILL.md      — Design system MaturIA (tokens, typo, composants)
-CHANGELOG.md  — Historique des versions
+index.html          — Écran d'accueil
+questionnaire.html  — Questionnaire 20 questions (5 domaines)
+SKILL.md            — Design system MaturIA (tokens, typo, composants)
+CHANGELOG.md        — Historique des versions
 ```
 
 Données stockées en mémoire (objet JS). Export PDF via `window.print()`.
@@ -31,7 +32,7 @@ Données stockées en mémoire (objet JS). Export PDF via `window.print()`.
 ## Écrans
 
 - **Accueil** (`index.html`) — Présentation du diagnostic, scores de la dernière session, liste des 5 domaines
-- **Questionnaire** — 20 questions réparties par domaine, progression visuelle
+- **Questionnaire** (`questionnaire.html`) — 20 questions réparties par domaine, navigation complète, persistance des réponses
 - **Rapport individuel** — Radar de performance, niveau global, recommandations
 - **Rapport groupe** — Vue consolidée multi-entités, distribution par niveau, export PDF
 
