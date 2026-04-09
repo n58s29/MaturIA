@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MaturIA — Questionnaire</title>
+  <style>
+    /* ─── Design Tokens ─────────────────────────────────────────────── */
+    :root {
+      --surface:                #f7f9ff;
+      --surface-basse:          #f1f4fa;
+      --surface-haute:          #dfe3e8;
+      --surface-flottante:      #ffffff;
+      --sur-surface:            #181c20;
+      --sur-surface-secondaire: #44474e;
+      --primaire:               #001b44;
+      --primaire-conteneur:     #123062;
+      --sur-primaire:           #ffffff;
+      --connaissance:           #0088cc;
+      --usage:                  #00b388;
+      --maitrise:               #eed484;
+      --satisfaction:           #8374d1;
+      --vision:                 #dc582a;
+      --ombre-ambiante:         rgba(0, 26, 66, 0.06);
+      --bordure-fantome:        rgba(116, 119, 128, 0.15);
+      --filet:                  linear-gradient(90deg, #0088cc, #eed484, #00b388);
+      --police-corps:           'Avenir', 'Avenir Next', Arial, sans-serif;
+
+      /* domaine courant — changé dynamiquement via JS */
+      --couleur-domaine:        var(--usage);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: var(--police-corps);
+      background: var(--surface);
+      color: var(--sur-surface);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ─── Shell mobile ──────────────────────────────────────────────── */
+    .shell {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ─── Top bar ───────────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem 0.75rem;
+      background: var(--surface-flottante);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      box-shadow: 0 4px 20px var(--ombre-ambiante);
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .topbar-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--primaire);
+      letter-spacing: 0.01em;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--primaire-conteneur);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ─── Domain nav ────────────────────────────────────────────────── */
+    .domain-nav {
+      background: var(--surface-flottante);
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0 0.5rem 0.75rem;
+      box-shadow: 0 4px 20px var(--ombre-ambiante);
+    }
+
+    .domain-nav::-webkit-scrollbar { display: none; }
+
+    .domain-tab {
+      flex: 1;
+      min-width: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0 0.25rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .domain-tab:hover { opacity: 0.75; }
+
+    .domain-tab-label {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--sur-surface-secondaire);
+      white-space: nowrap;
+      transition: color 0.2s;
+    }
+
+    .domain-tab.active .domain-tab-label { color: var(--couleur-domaine); }
+
+    .domain-tab-bar {
+      width: 100%;
+      height: 3px;
+      background: var(--surface-haute);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .domain-tab-fill {
+      height: 100%;
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* ─── Content area ──────────────────────────────────────────────── */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ─── Domain card ───────────────────────────────────────────────── */
+    .domain-card {
+      background: var(--surface-flottante);
+      padding: 1.25rem 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--couleur-domaine);
+    }
+
+    .domain-title {
+      font-size: clamp(1.3rem, 5vw, 1.7rem);
+      font-weight: 500;
+      color: var(--primaire);
+      line-height: 1.2;
+    }
+
+    .domain-desc {
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: var(--sur-surface-secondaire);
+      line-height: 1.6;
+      margin-top: 0.125rem;
+    }
+
+    /* ─── Domain image ──────────────────────────────────────────────── */
+    .domain-image {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      display: block;
+      background: var(--primaire-conteneur);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .domain-image canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ─── Question block ────────────────────────────────────────────── */
+    .question-block {
+      padding: 1.25rem 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      flex: 1;
+    }
+
+    .question-counter {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--couleur-domaine);
+    }
+
+    .question-text {
+      font-size: clamp(1.05rem, 4vw, 1.2rem);
+      font-weight: 500;
+      color: var(--primaire);
+      line-height: 1.35;
+    }
+
+    /* ─── Choices ───────────────────────────────────────────────────── */
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .choix {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      background: var(--surface-flottante);
+      border-radius: 0.5rem;
+      padding: 0.875rem 1rem;
+      cursor: pointer;
+      outline: 1px solid var(--bordure-fantome);
+      transition: background 0.15s, outline 0.15s;
+      user-select: none;
+    }
+
+    .choix:hover { background: var(--surface-basse); }
+
+    .choix.active {
+      outline: 1.5px solid var(--couleur-domaine);
+      background: rgba(0, 179, 136, 0.04);
+    }
+
+    /* Radio circle */
+    .radio {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--surface-haute);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, background 0.15s;
+      background: var(--surface-flottante);
+    }
+
+    .choix.active .radio {
+      border-color: var(--couleur-domaine);
+      background: var(--couleur-domaine);
+    }
+
+    .radio-inner {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--sur-primaire);
+      opacity: 0;
+      transform: scale(0);
+      transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .choix.active .radio-inner {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .choix-label {
+      font-size: 0.875rem;
+      font-weight: 300;
+      color: var(--sur-surface);
+      line-height: 1.4;
+    }
+
+    .choix.active .choix-label {
+      font-weight: 400;
+      color: var(--primaire);
+    }
+
+    /* ─── Nav buttons ───────────────────────────────────────────────── */
+    .nav-buttons {
+      padding: 0.875rem 1.25rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background: var(--surface-flottante);
+      box-shadow: 0 -6px 24px var(--ombre-ambiante);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: none;
+      font-family: var(--police-corps);
+      font-weight: 400;
+      font-size: 0.875rem;
+      color: var(--sur-surface-secondaire);
+      cursor: pointer;
+      padding: 0.5rem 0.25rem;
+      transition: color 0.2s;
+    }
+
+    .btn-ghost:hover { color: var(--primaire); }
+
+    .btn-primaire {
+      background: var(--primaire);
+      color: var(--sur-primaire);
+      border: none;
+      border-radius: 0.375rem;
+      padding: 0.75rem 1.5rem;
+      font-family: var(--police-corps);
+      font-weight: 400;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primaire:hover { opacity: 0.88; }
+
+    /* ─── Bottom nav ────────────────────────────────────────────────── */
+    .bottom-nav {
+      background: var(--surface-flottante);
+      display: flex;
+      padding: 0.5rem 0 0.75rem;
+      box-shadow: 0 -8px 30px var(--ombre-ambiante);
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      cursor: pointer;
+      padding: 0.25rem 0;
+      transition: opacity 0.2s;
+    }
+
+    .nav-item:hover { opacity: 0.75; }
+
+    .nav-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+    .nav-icon svg { width: 18px; height: 18px; }
+
+    .nav-label {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--sur-surface-secondaire);
+    }
+
+    .nav-item.active .nav-label { color: var(--usage); }
+
+    /* ─── Responsive desktop ────────────────────────────────────────── */
+    @media (min-width: 900px) {
+      body { background: var(--surface-basse); padding: 2rem; }
+      .shell {
+        border-radius: 2rem;
+        box-shadow: 0 40px 100px rgba(0, 26, 66, 0.14);
+        min-height: auto;
+        max-height: 90vh;
+        overflow: hidden;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ── Top bar ──────────────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M3 12 Q12 2 21 12 Q12 22 3 12Z" stroke="#001b44" stroke-width="1.5"/>
+        <circle cx="12" cy="12" r="3" fill="#001b44"/>
+      </svg>
+      <span class="topbar-name">Intellectual Curator</span>
+    </div>
+    <div class="avatar">
+      <svg viewBox="0 0 24 24" fill="none" width="20" height="20">
+        <circle cx="12" cy="8" r="4" fill="#fff" opacity="0.85"/>
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" fill="#fff" opacity="0.55"/>
+      </svg>
+    </div>
+  </header>
+
+  <!-- ── Domain navigation ────────────────────────────────────────── -->
+  <nav class="domain-nav" id="domainNav">
+    <!-- Populated by JS -->
+  </nav>
+
+  <!-- ── Scrollable content ───────────────────────────────────────── -->
+  <div class="content" id="mainContent">
+
+    <!-- Domain card -->
+    <div class="domain-card" id="domainCard">
+      <span class="eyebrow" id="domainEyebrow">DOMAINE ACTUEL</span>
+      <h2 class="domain-title" id="domainTitle">Usage &amp; Fréquence</h2>
+      <p class="domain-desc" id="domainDesc">
+        Cette section évalue l'intégration concrète des outils d'IA au sein de votre flux de travail opérationnel.
+      </p>
+    </div>
+
+    <!-- Domain image (SVG placeholder photographic) -->
+    <div class="domain-image">
+      <canvas id="imageCanvas"></canvas>
+    </div>
+
+    <!-- Question block -->
+    <div class="question-block">
+      <span class="question-counter" id="questionCounter">QUESTION 04 / 20</span>
+      <p class="question-text" id="questionText">
+        À quelle fréquence utilisez-vous des outils d'IA Générative dans vos tâches quotidiennes&nbsp;?
+      </p>
+      <div class="choices" id="choices">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- ── Nav buttons ──────────────────────────────────────────────── -->
+  <div class="nav-buttons">
+    <button class="btn-ghost" id="btnPrev" onclick="navigate(-1)">← Précédent</button>
+    <button class="btn-primaire" id="btnNext" onclick="navigate(1)">
+      Suivant
+      <svg viewBox="0 0 16 16" fill="none" width="14" height="14">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ── Bottom nav ───────────────────────────────────────────────── -->
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="setActiveNav(this)">
+      <div class="nav-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#44474e" stroke-width="1.3">
+          <path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h11A1.5 1.5 0 0 1 17 4.5v11A1.5 1.5 0 0 1 15.5 17H4.5A1.5 1.5 0 0 1 3 15.5V4.5Z"/>
+          <path d="M7 3v14M7 10h6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="nav-label">Knowledge</span>
+    </div>
+    <div class="nav-item active" onclick="setActiveNav(this)">
+      <div class="nav-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#00b388" stroke-width="1.3">
+          <path d="M2 12c2-4 4-4 6 0s4 4 6 0" stroke-linecap="round"/>
+          <path d="M2 7c2-3 4-3 6 0s4 3 6 0" stroke-linecap="round" opacity="0.4"/>
+        </svg>
+      </div>
+      <span class="nav-label">Usage</span>
+    </div>
+    <div class="nav-item" onclick="setActiveNav(this)">
+      <div class="nav-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#44474e" stroke-width="1.3">
+          <path d="M10 3a5 5 0 0 1 3.5 8.5c-.5.5-.5 1-.5 1.5H7c0-.5 0-1-.5-1.5A5 5 0 0 1 10 3Z"/>
+          <path d="M7.5 14.5h5M8.5 16.5h3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="nav-label">Mastery</span>
+    </div>
+    <div class="nav-item" onclick="setActiveNav(this)">
+      <div class="nav-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#44474e" stroke-width="1.3">
+          <circle cx="10" cy="10" r="7"/>
+          <path d="M10 3v2M10 15v2M3 10h2M15 10h2" stroke-linecap="round"/>
+          <circle cx="10" cy="10" r="0.8" fill="#44474e"/>
+        </svg>
+      </div>
+      <span class="nav-label">Strategy</span>
+    </div>
+  </nav>
+
+</div><!-- /shell -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════════════════ */
+const DOMAINES = [
+  {
+    id: 'connaissance',
+    label: 'Knowledge',
+    color: '#0088cc',
+    title: 'Connaissance & Culture IA',
+    desc: 'Cette section évalue votre compréhension des fondamentaux de l\'intelligence artificielle et de la culture IA au sein de votre organisation.',
+    questions: [
+      { text: 'Comment définiriez-vous l\'IA Générative à un collègue ?', choices: ['Je ne saurais pas expliquer', 'Je peux donner une définition approximative', 'Je peux l\'expliquer clairement', 'Je peux l\'expliquer avec des exemples concrets', 'Je forme d\'autres personnes sur le sujet'] },
+      { text: 'Connaissez-vous les principaux outils d\'IA Générative disponibles sur le marché ?', choices: ['Aucun outil ne m\'est familier', 'Je connais ChatGPT uniquement', 'Je connais 2 à 3 outils', 'Je connais plus de 5 outils', 'Je fais une veille régulière sur les nouveaux outils'] },
+      { text: 'Avez-vous suivi une formation sur l\'IA Générative ?', choices: ['Jamais', 'Une initiation informelle', 'Une formation courte (<1 jour)', 'Plusieurs formations', 'Formation certifiante ou approfondie'] },
+      { text: 'Êtes-vous informé(e) de la politique IA de votre organisation ?', choices: ['Non, aucune politique', 'J\'en ai entendu parler', 'Je connais les grandes lignes', 'Je la connais et la respecte', 'Je contribue à son élaboration'] },
+    ]
+  },
+  {
+    id: 'usage',
+    label: 'Usage',
+    color: '#00b388',
+    title: 'Usage & Fréquence',
+    desc: 'Cette section évalue l\'intégration concrète des outils d\'IA au sein de votre flux de travail opérationnel.',
+    questions: [
+      { text: 'À quelle fréquence utilisez-vous des outils d\'IA Générative dans vos tâches quotidiennes ?', choices: ['Quotidiennement', 'Plusieurs fois par semaine', 'Occasionnellement', 'Rarement', 'Jamais'] },
+      { text: 'Pour quels types de tâches utilisez-vous l\'IA Générative ?', choices: ['Je ne l\'utilise pas encore', 'Rédaction de textes simples', 'Synthèse de documents', 'Analyse de données et rapports', 'Automatisation de processus complexes'] },
+      { text: 'Comment intégrez-vous l\'IA dans votre workflow ?', choices: ['Je ne l\'utilise pas', 'De façon ponctuelle et isolée', 'Régulièrement sur certaines tâches', 'Systématiquement sur la plupart des tâches', 'L\'IA est au cœur de mon workflow'] },
+      { text: 'Avez-vous fait adopter des outils IA à votre équipe ?', choices: ['Non', 'J\'ai mentionné leur existence', 'J\'ai partagé quelques ressources', 'J\'ai organisé des démonstrations', 'Mon équipe a des pratiques IA structurées'] },
+    ]
+  },
+  {
+    id: 'maitrise',
+    label: 'Mastery',
+    color: '#eed484',
+    title: 'Maîtrise & Qualité',
+    desc: 'Cette section mesure votre niveau d\'expertise technique dans l\'utilisation et l\'optimisation des outils d\'IA Générative.',
+    questions: [
+      { text: 'Savez-vous rédiger des prompts efficaces pour obtenir des résultats de qualité ?', choices: ['Je ne sais pas ce qu\'est un prompt', 'Je formule des demandes simples', 'Je structure mes prompts avec contexte', 'J\'utilise des techniques avancées', 'Je conçois des systèmes de prompts complexes'] },
+      { text: 'Comment évaluez-vous la qualité des résultats produits par l\'IA ?', choices: ['Je prends les résultats tels quels', 'Je relis rapidement', 'Je vérifie les faits importants', 'J\'ai une grille d\'évaluation', 'Je mesure l\'impact sur mes livrables'] },
+      { text: 'Avez-vous connaissance des biais et limites de l\'IA Générative ?', choices: ['Aucune connaissance', 'Notion vague de limites', 'Je connais les principaux biais', 'Je les intègre dans mon usage', 'Je forme les autres sur ce sujet'] },
+      { text: 'Êtes-vous capable de comparer et choisir le bon outil selon le cas d\'usage ?', choices: ['Non', 'Je n\'utilise qu\'un seul outil', 'Je compare parfois', 'Je choisis selon critères clairs', 'J\'ai une matrice de sélection'] },
+    ]
+  },
+  {
+    id: 'satisfaction',
+    label: 'Satisfaction',
+    color: '#8374d1',
+    title: 'Satisfaction & Perception',
+    desc: 'Cette section mesure l\'impact de l\'IA Générative sur votre engagement, votre bien-être et votre rapport au travail.',
+    questions: [
+      { text: 'Quel est votre ressenti général vis-à-vis de l\'IA Générative au travail ?', choices: ['Anxiété / crainte', 'Méfiance prudente', 'Neutralité', 'Enthousiasme modéré', 'Enthousiasme fort'] },
+      { text: 'Pensez-vous que l\'IA améliore votre qualité de vie au travail ?', choices: ['Non, elle la détériore', 'Pas d\'impact notable', 'Légère amélioration', 'Amélioration significative', 'Transformation positive majeure'] },
+      { text: 'Vous sentez-vous accompagné(e) dans votre montée en compétences IA ?', choices: ['Pas du tout', 'Peu accompagné(e)', 'Partiellement', 'Bien accompagné(e)', 'Très bien accompagné(e)'] },
+      { text: 'Recommanderiez-vous à vos collègues d\'adopter des outils IA ?', choices: ['Non', 'Probablement pas', 'Peut-être', 'Probablement oui', 'Absolument oui'] },
+    ]
+  },
+  {
+    id: 'vision',
+    label: 'Strategy',
+    color: '#dc582a',
+    title: 'Vision Stratégique',
+    desc: 'Cette section évalue votre compréhension des enjeux de gouvernance, d\'éthique et de transformation à long terme liés à l\'IA.',
+    questions: [
+      { text: 'Avez-vous une vision claire de l\'impact de l\'IA sur votre métier dans 3 ans ?', choices: ['Aucune vision', 'Vision très floue', 'Quelques intuitions', 'Vision assez claire', 'Vision structurée et documentée'] },
+      { text: 'Connaissez-vous les enjeux éthiques et réglementaires de l\'IA (ex : EU AI Act) ?', choices: ['Non', 'Notion très vague', 'Connaissance partielle', 'Bonne connaissance', 'Expert(e) sur le sujet'] },
+      { text: 'Participez-vous à des réflexions stratégiques IA dans votre organisation ?', choices: ['Non', 'Rarement sollicité(e)', 'Occasionnellement', 'Régulièrement', 'Je pilote ces réflexions'] },
+      { text: 'Avez-vous défini des indicateurs pour mesurer le ROI de l\'IA dans votre périmètre ?', choices: ['Non', 'En cours de réflexion', 'Indicateurs partiels', 'KPIs définis et suivis', 'Reporting IA formalisé'] },
+    ]
+  }
+];
+
+/* Réponses stockées : { "domaine_qIndex": choiceIndex } */
+const REPONSES = {};
+
+/* ─── État courant ──────────────────────────────────────────────── */
+let domaineIdx   = 1;   // Usage par défaut (correspond à la maquette)
+let questionIdx  = 3;   // Question 04 (index 3)
+
+/* ─── Helpers ───────────────────────────────────────────────────── */
+function totalQuestions() { return DOMAINES.reduce((s, d) => s + d.questions.length, 0); }
+function globalQuestionIndex() {
+  let n = 0;
+  for (let i = 0; i < domaineIdx; i++) n += DOMAINES[i].questions.length;
+  return n + questionIdx;
+}
+
+/* ─── Render domain nav ─────────────────────────────────────────── */
+function renderDomainNav() {
+  const nav = document.getElementById('domainNav');
+  nav.innerHTML = '';
+  DOMAINES.forEach((d, i) => {
+    const tab = document.createElement('div');
+    tab.className = 'domain-tab' + (i === domaineIdx ? ' active' : '');
+    tab.onclick = () => { domaineIdx = i; questionIdx = 0; renderAll(); };
+
+    /* progress within this domain */
+    const answered = d.questions.filter((_, qi) => REPONSES[`${i}_${qi}`] !== undefined).length;
+    const pct = i < domaineIdx
+      ? 100
+      : i === domaineIdx
+        ? Math.round((questionIdx / d.questions.length) * 100)
+        : 0;
+
+    tab.innerHTML = `
+      <span class="domain-tab-label">${d.label}</span>
+      <div class="domain-tab-bar">
+        <div class="domain-tab-fill" style="background:${d.color}; width:${pct}%"></div>
+      </div>`;
+    nav.appendChild(tab);
+  });
+}
+
+/* ─── Render question ───────────────────────────────────────────── */
+function renderQuestion() {
+  const domaine = DOMAINES[domaineIdx];
+  const q       = domaine.questions[questionIdx];
+  const global  = globalQuestionIndex() + 1;
+  const total   = totalQuestions();
+
+  /* Couleur domaine sur :root */
+  document.documentElement.style.setProperty('--couleur-domaine', domaine.color);
+
+  /* Domain card */
+  document.getElementById('domainEyebrow').textContent = 'DOMAINE ACTUEL';
+  document.getElementById('domainTitle').textContent   = domaine.title;
+  document.getElementById('domainDesc').textContent    = domaine.desc;
+
+  /* Counter */
+  document.getElementById('questionCounter').textContent =
+    `QUESTION ${String(global).padStart(2, '0')} / ${total}`;
+
+  /* Question text */
+  document.getElementById('questionText').textContent = q.text;
+
+  /* Choices */
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+  const key = `${domaineIdx}_${questionIdx}`;
+  q.choices.forEach((label, ci) => {
+    const el = document.createElement('div');
+    el.className = 'choix' + (REPONSES[key] === ci ? ' active' : '');
+    el.innerHTML = `
+      <div class="radio"><div class="radio-inner"></div></div>
+      <span class="choix-label">${label}</span>`;
+    el.onclick = () => selectChoice(ci);
+    container.appendChild(el);
+  });
+
+  /* Bouton Précédent */
+  document.getElementById('btnPrev').style.visibility =
+    (domaineIdx === 0 && questionIdx === 0) ? 'hidden' : 'visible';
+}
+
+/* ─── Select a choice ───────────────────────────────────────────── */
+function selectChoice(ci) {
+  const key = `${domaineIdx}_${questionIdx}`;
+  REPONSES[key] = ci;
+  document.querySelectorAll('.choix').forEach((el, i) => {
+    el.classList.toggle('active', i === ci);
+  });
+}
+
+/* ─── Navigate ──────────────────────────────────────────────────── */
+function navigate(dir) {
+  const domaine = DOMAINES[domaineIdx];
+  if (dir === 1) {
+    if (questionIdx < domaine.questions.length - 1) {
+      questionIdx++;
+    } else if (domaineIdx < DOMAINES.length - 1) {
+      domaineIdx++;
+      questionIdx = 0;
+    } else {
+      /* Dernier écran — à venir */
+      alert('Diagnostic terminé ! Votre rapport est en cours de génération…');
+      return;
+    }
+  } else {
+    if (questionIdx > 0) {
+      questionIdx--;
+    } else if (domaineIdx > 0) {
+      domaineIdx--;
+      questionIdx = DOMAINES[domaineIdx].questions.length - 1;
+    }
+  }
+  renderAll();
+}
+
+/* ─── Render all ────────────────────────────────────────────────── */
+function renderAll() {
+  renderDomainNav();
+  renderQuestion();
+  renderImageCanvas();
+}
+
+/* ─── Bottom nav ────────────────────────────────────────────────── */
+function setActiveNav(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ─── Domain image canvas ───────────────────────────────────────── */
+function renderImageCanvas() {
+  const canvas = document.getElementById('imageCanvas');
+  const parent = canvas.parentElement;
+  const W = parent.offsetWidth;
+  const H = parent.offsetHeight || 190;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const domaine = DOMAINES[domaineIdx];
+  const col     = domaine.color;
+
+  /* Dark base */
+  ctx.fillStyle = '#0d1a2e';
+  ctx.fillRect(0, 0, W, H);
+
+  /* Ambient gradient */
+  const g = ctx.createRadialGradient(W * 0.6, H * 0.4, 0, W * 0.6, H * 0.4, W * 0.7);
+  g.addColorStop(0, col + '22');
+  g.addColorStop(1, 'transparent');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  /* Desk silhouette */
+  ctx.fillStyle = '#1a2a3e';
+  ctx.fillRect(0, H * 0.55, W, H * 0.45);
+
+  /* Desk surface line */
+  ctx.beginPath();
+  ctx.moveTo(0, H * 0.55);
+  ctx.lineTo(W, H * 0.55);
+  ctx.strokeStyle = col + '55';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  /* Lamp base */
+  const lx = W * 0.62, ly = H * 0.55;
+  ctx.fillStyle = '#263347';
+  ctx.fillRect(lx - 4, ly - H * 0.28, 8, H * 0.28);
+
+  /* Lamp shade */
+  ctx.beginPath();
+  ctx.moveTo(lx - 28, ly - H * 0.28);
+  ctx.lineTo(lx + 28, ly - H * 0.28);
+  ctx.lineTo(lx + 16, ly - H * 0.42);
+  ctx.lineTo(lx - 16, ly - H * 0.42);
+  ctx.closePath();
+  ctx.fillStyle = '#1e3050';
+  ctx.fill();
+
+  /* Lamp light cone */
+  const lc = ctx.createRadialGradient(lx, ly - H * 0.28, 2, lx, ly, H * 0.38);
+  lc.addColorStop(0, col + '44');
+  lc.addColorStop(1, 'transparent');
+  ctx.fillStyle = lc;
+  ctx.fillRect(lx - 80, ly - H * 0.28, 160, H * 0.5);
+
+  /* Books on desk */
+  [0.15, 0.18, 0.21].forEach((x, i) => {
+    ctx.fillStyle = ['#1c3a5e', '#163054', '#0d2240'][i];
+    ctx.fillRect(W * x, ly - H * (0.08 + i * 0.015), 16, H * (0.08 + i * 0.015));
+  });
+
+  /* Subtle grid overlay */
+  ctx.strokeStyle = col + '08';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x < W; x += 28) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += 28) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  /* Domain color accent strip at bottom */
+  const strip = ctx.createLinearGradient(0, 0, W, 0);
+  strip.addColorStop(0, col + 'cc');
+  strip.addColorStop(0.5, col + '55');
+  strip.addColorStop(1, 'transparent');
+  ctx.fillStyle = strip;
+  ctx.fillRect(0, H - 3, W, 3);
+}
+
+/* ─── Init ──────────────────────────────────────────────────────── */
+window.addEventListener('load', () => {
+  renderAll();
+  window.addEventListener('resize', renderImageCanvas);
+});
+</script>
+
+</body>
+</html>
